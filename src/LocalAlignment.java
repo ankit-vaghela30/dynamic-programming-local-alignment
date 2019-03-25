@@ -151,6 +151,7 @@ public class LocalAlignment{
         //go backwards on text
         for(int i = largeTextStart-2; i>=0; i--){
             if(this.largeTextString.charAt(i) == ' '){
+                // We have to update large text start index as we now have just a word
                 largeTextStart = largeTextStart-1-i;
                 break;
             }
