@@ -6,7 +6,7 @@ import java.util.*;
  * solved by using Dynamic programming approach
  */
 public class LocalAlignment{
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     // query
     public String query = "";
 
@@ -48,7 +48,6 @@ public class LocalAlignment{
             for(int i = 4; i < args.length; i++){
                 this.query = this.query +" "+ args[i];
             }
-            
             // number k
             this.k = Integer.parseInt(args[1]);
 
@@ -217,14 +216,17 @@ public class LocalAlignment{
             String endIndexForQuery = "";
             String endIndexForText = "";
             
-            // For first character 
-            if(this.query.charAt(maxNumLoc[0]-1) == this.largeTextString.charAt(maxNumLoc[1]-1)){
+            // For first character
+            Integer[] prevLocInit = this.traceBackMap.get(maxNumLoc[0]+ "," +maxNumLoc[1]);
+            int row = prevLocInit[0];
+            int col = prevLocInit[1]; 
+            if(maxNumLoc[0] - 1 == row && maxNumLoc[1] - 1 == col){
                 queryStr = ""+this.query.charAt(maxNumLoc[0]-1);
                 bigStr = ""+this.largeTextString.charAt(maxNumLoc[1]-1);
-            }else if(this.dpTable[maxNumLoc[0]][maxNumLoc[1]-1] != 0){
+            }else if(maxNumLoc[0] == row && maxNumLoc[1] - 1 == col){
                 queryStr = queryStr+"-";
                 bigStr = bigStr + this.largeTextString.charAt(maxNumLoc[1]-1);
-            } else if(this.dpTable[maxNumLoc[0]-1][maxNumLoc[1]] != 0){
+            } else if(maxNumLoc[0] - 1 == row && maxNumLoc[1] == col){
                 queryStr = queryStr + this.query.charAt(maxNumLoc[0]-1);
                 bigStr = bigStr+"-";
             }
@@ -234,21 +236,27 @@ public class LocalAlignment{
             // Do recursively for rest query characters
             while(this.traceBackMap.get(maxNumLoc[0]+ "," +maxNumLoc[1]) != null && this.dpTable[this.traceBackMap.get(maxNumLoc[0]+ "," +maxNumLoc[1])[0]][this.traceBackMap.get(maxNumLoc[0]+ "," +maxNumLoc[1])[1]] != 0){
                 maxNumLoc = this.traceBackMap.get(maxNumLoc[0]+ "," +maxNumLoc[1]);
-                if(this.query.charAt(maxNumLoc[0]-1) == this.largeTextString.charAt(maxNumLoc[1]-1)){
+                Integer[] prevLoc = this.traceBackMap.get(maxNumLoc[0]+ "," +maxNumLoc[1]);
+                if(prevLoc == null){
+                    break;
+                }
+                row = prevLoc[0];
+                col = prevLoc[1];
+                if(maxNumLoc[0] - 1 == row && maxNumLoc[1] - 1 == col){ //this.query.charAt(maxNumLoc[0]-1) == this.largeTextString.charAt(maxNumLoc[1]-1)){
                     //System.out.println("reward");
                     queryStr = queryStr + this.query.charAt(maxNumLoc[0]-1);
                     bigStr = bigStr + this.largeTextString.charAt(maxNumLoc[1]-1);
-                } else if(this.dpTable[maxNumLoc[0]][maxNumLoc[1]-1] != 0){
+                }
+                else if(maxNumLoc[0] == row && maxNumLoc[1] - 1 == col){ //this.dpTable[maxNumLoc[0]][maxNumLoc[1]-1] != 0){
                     //System.out.println("deletion");
                     queryStr = queryStr+"-";
                     bigStr = bigStr + this.largeTextString.charAt(maxNumLoc[1]-1);
-                } else if(this.dpTable[maxNumLoc[0]-1][maxNumLoc[1]] != 0){
+                }  
+                else if(maxNumLoc[0] - 1 == row && maxNumLoc[1] == col){//this.dpTable[maxNumLoc[0]-1][maxNumLoc[1]] != 0){
                     //System.out.println("insertion");
                     queryStr = queryStr + this.query.charAt(maxNumLoc[0]-1);
                     bigStr = bigStr+"-";
-                } else{
-                    break;
-                }
+                } 
             }
             String startIndexForquery = String.valueOf(maxNumLoc[0]);
             String startIndexForText = String.valueOf(maxNumLoc[1]);
