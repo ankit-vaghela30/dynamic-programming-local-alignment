@@ -6,9 +6,9 @@ import java.util.*;
  * solved by using Dynamic programming approach
  */
 public class LocalAlignment{
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     // query
-    public String query;
+    public String query = "";
 
     // large text 
     public String largeTextString;
@@ -38,16 +38,19 @@ public class LocalAlignment{
     public LocalAlignment(String[] args){
         Scanner sc;
         try{
-            File scoreSchemeFile = new File(args[3]);
+            File scoreSchemeFile = new File(args[2]);
             sc = new Scanner(scoreSchemeFile);
             String scoreSchemeText = readFile(sc);
             createScoreScheme(scoreSchemeText);
 
             // query 
-            this.query = args[1];
-
+            this.query = this.query + args[3];
+            for(int i = 4; i < args.length; i++){
+                this.query = this.query +" "+ args[i];
+            }
+            
             // number k
-            this.k = Integer.parseInt(args[2]);
+            this.k = Integer.parseInt(args[1]);
 
             // extract text from large text file
             File largeTextFile = new File(args[0]);
@@ -82,6 +85,8 @@ public class LocalAlignment{
         for(int i = 0; i < dpTable.length; i++){
             for (int j = 0; j < dpTable[i].length; j++){
                 if(dpTable[i][j] == 0){
+                    System.out.print(dpTable[i][j] + "   |");
+                }else if(dpTable[i][j].toString().length() == 2){
                     System.out.print(dpTable[i][j] + "  |");
                 }else{
                     System.out.print(dpTable[i][j] + " |");
@@ -123,7 +128,7 @@ public class LocalAlignment{
                 } else{
                     int insertion = this.dpTable[i-1][j] + this.scoreScheme.get("insertion");
                     int deletion = this.dpTable[i][j-1] + this.scoreScheme.get("deletion");
-                    if(insertion > 0 && insertion > deletion){
+                    if(insertion > 0 && insertion >= deletion){
                         this.traceBackMap.put(i+","+j, new Integer[]{i-1, j});
                     } else if(deletion > 0 && deletion > insertion){
                         this.traceBackMap.put(i+","+j, new Integer[]{i, j-1});
@@ -204,7 +209,7 @@ public class LocalAlignment{
         
         // Store initial max number location so that we can make it 0 in DP table
         Integer[] initMaxNumLoc = new Integer[]{maxNumLoc[0], maxNumLoc[1]};
-        if(DEBUG)System.out.println("Score is: "+maxNum);
+        System.out.println("Score is: "+maxNum);
 
         if(maxNum != 0){
             String queryStr = "";
@@ -253,9 +258,14 @@ public class LocalAlignment{
             queryStr = reverseString(queryStr);
             queryStr = "[" + startIndexForquery + "]" + queryStr + "[" + endIndexForQuery + "]";
             bigStr = reverseString(bigStr);
+            for(int i = 0; i < ("[" + startIndexForquery + "]").length(); i++){
+                bigStr = " " + bigStr;
+            }
             
             // prints final output
-            System.out.println(this.alignTwoText(queryStr, bigStr, Integer.valueOf(startIndexForquery), Integer.valueOf(endIndexForQuery), Integer.valueOf(startIndexForText), Integer.valueOf(endIndexForText)));
+            //System.out.println(this.alignTwoText(queryStr, bigStr, Integer.valueOf(startIndexForquery), Integer.valueOf(endIndexForQuery), Integer.valueOf(startIndexForText), Integer.valueOf(endIndexForText)));
+            System.out.println(queryStr);
+            System.out.println(bigStr);
             this.dpTableCopy[initMaxNumLoc[0]][initMaxNumLoc[1]] = 0;
         }else{
             System.out.println("Everything is 0!");
